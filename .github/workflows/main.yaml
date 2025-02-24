@@ -81,3 +81,20 @@ jobs:
       run: |
         docker tag my-spring-app:latest ${{ secrets.DOCKER_USERNAME }}/my-spring-app:latest
         docker push ${{ secrets.DOCKER_USERNAME }}/my-spring-app:latest
+  deploy:
+    needs: docker  # 🚀 Ce job s'exécute après le build et le push de l'image Docker
+    runs-on: self-hosted
+
+    steps:
+    - name: Deploy to Remote Server
+      uses: appleboy/ssh-action@v0.1.10
+      with:
+        host: ${{ secrets.SERVER_HOST }}
+        username: ${{ secrets.SERVER_USER }}
+        password: ${{ secrets.SERVER_PASSWORD }} # ⚠️ Utilise plutôt une clé SSH (voir ci-dessous)
+        script: |
+          docker pull ${{ secrets.DOCKER_USERNAME }}/my-spring-app:latest
+          docker stop my-spring-app || true
+          docker rm my-spring-app || true
+          docker run -d --name my-spring-app -p 8080:8080 ${{ secrets.DOCKER_USERNAME }}/my-spring-app:latest
+
