@@ -30,7 +30,7 @@ jobs:
 
   package:
     needs: build  # 🚀 Exécute ce job SEULEMENT après "build"
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
 
     steps:
     - name: Checkout code
